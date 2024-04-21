@@ -7,7 +7,22 @@ DDL
 Creacion de la base de datos:
 
 ```mysql
-create database tallerNormalizacion;
+
+mysql> CREATE DATABASE normalizacion;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| normalizacion      |
+| performance_schema |
+| sys                |
+| work               |
++--------------------+
+6 rows in set (0.00 sec)
 ```
 
 Creacion de las tablas:
