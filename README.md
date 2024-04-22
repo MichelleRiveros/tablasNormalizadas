@@ -28,180 +28,197 @@ mysql> SHOW DATABASES;
 Creacion de las tablas:
 
 ```mysql
-create table pais(
-    id int auto_increment primary key,
-    nombre varchar(100) not null
+
+CREATE TABLE pais(
+    id_pais INT(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY(id_pais),
+    nombre VARCHAR(100) NOT NULL
+    );
+
+CREATE TABLE region(
+    id_region INT(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY(id_region),
+    nombre VARCHAR(100) NOT NULL,
+    id_pais INT(11) NOT NULL,
+    CONSTRAINT FK_region_pais FOREIGN KEY (id_pais) REFER
+ENCES pais(id_pais));
+
+CREATE TABLE ciudad(
+    id_ciudad INT(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY(id_ciudad),
+    nombre VARCHAR(100) NOT NULL,
+    id_region INT(11) NOT NULL,
+    CONSTRAINT FK_ciudad_region FOREIGN KEY (id_region) REFERENCES region(id_region)
 );
 
-create table region(
-	id int auto_increment primary key,
-	nombre varchar(100) not null,
-    id_pais int not null,
-    constraint FK_id_pais foreign key(id_pais) references pais(id)
+CREATE TABLE direccion(
+    id_direccion INT(11) NOT NULL AUTO_INCREMENT,
+    linea_direccion1 VARCHAR(50) NOT NULL,
+    linea_direccion2 VARCHAR(50),
+    barrio VARCHAR(100) NOT NULL,
+    codigo_postal VARCHAR(10),
+    id_ciudad INT(11) NOT NULL,
+    PRIMARY KEY(id_direccion),
+    CONSTRAINT FK_direccion_ciudad FOREIGN KEY(id_ciudad) REFERENCES ciudad(id_ciudad)
 );
 
-create table ciudad(
-	id int auto_increment primary key,
-	nombre varchar(100) not null,
-	id_region int  not null,
-	constraint FK_id_region foreign key(id_region) references 		region(id)
+CREATE TABLE proveedor (
+    id_proveedor INT(11) NOT NULL,
+    PRIMARY KEY (id_proveedor),
+    telefono VARCHAR(20) NOT NULL,
+    nombre VARCHAR(100) NOT NULL
 );
 
-create table oficina(
-	id int auto_increment primary key,
-    cod_postal int(6) not null,
-    linea_d1 varchar(100) not null,
-    linea_d2 varchar(100),
-    id_ciudad int,
-    constraint FK_id_ciudad_oficina foreign key(id_ciudad) references ciudad(id)
+CREATE TABLE proveedor_direccion (
+    id_proveedor INT(11) NOT NULL,
+    id_direccion INT(11) NOT NULL,
+    PRIMARY KEY (id_proveedor, id_direccion),
+    FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor),
+    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
 );
 
-create table empleado(
-	cedula int not null primary key,
-    nombre varchar(100) not null,
-    apellido1 varchar(100) not null,
-    apellido2 varchar(100),
-    extension int(5) not null,
-    puesto varchar(100),
-    email varchar(100) not null,
-    jefe int,
-    id_oficina int,
-    constraint FK_cedula_jefe foreign key(jefe) references empleado(cedula),
-    constraint FK_id_oficina foreign key(id_oficina) references oficina(id)
+CREATE TABLE oficina (
+    id_oficina INT(11) NOT NULL AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    PRIMARY KEY (id_oficina)
 );
 
-create table cliente(
-    cedula int(10) primary key,
-	nombre varchar(100) not null,
-	linea_d1 varchar(100) not null,
-    linea_d2 varchar(100),
-    id_ciudad int not null,
-    cedula_empleado int,
-    constraint FK_id_ciudad_cliente foreign key(id_ciudad) references ciudad(id),
-    constraint FK_id_empleado foreign key(cedula_empleado) references empleado(cedula)
+CREATE TABLE oficina_direccion (
+    id_oficina INT(11) NOT NULL,
+    id_direccion INT(11) NOT NULL,
+    PRIMARY KEY (id_oficina, id_direccion),
+    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina),
+    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
 );
 
-create table proveedor(
-	nit int(9) primary key,
-    nombre varchar(100) not null
+CREATE TABLE gama_producto(
+    gama VARCHAR(50),
+    PRIMARY KEY (gama),
+    descripcion_texto TEXT,
+    descripcion_html TEXT,
+    imagen VARCHAR(256));
+
+CREATE TABLE dimensiones(
+    id_dimensiones INT(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (id_dimensiones),
+    alto DECIMAL(5),
+    ancho DECIMAL(5),
+    profundidad INT(5),
+    diametro DECIMAL(5),
+    unidad_de_medida VARCHAR(10));
+
+CREATE TABLE producto (
+    id_producto INT(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (id_producto),
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio_proveedor DECIMAL (12,5),
+    precio_venta DECIMAL(12,5) NOT NULL,
+    id_dimensiones INT(11),
+    FOREIGN KEY (id_dimensiones) REFERENCES dimensiones(id_dimensiones),
+    id_proveedor INT(11),
+    FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor),
+    gama VARCHAR(50) NOT NULL,
+    FOREIGN KEY (gama) REFERENCES gama_producto(gama)
 );
 
-create table sucursal(
-	id int auto_increment primary key,
-    direccion varchar(100) not null,
-    nit_proveedor int not null,
-    id_ciudad int not null,
-    constraint FK_nit_proveedor_sucursal foreign key(nit_proveedor) references proveedor(nit),
-    constraint FK_id_ciudad_sucursal foreign key(id_ciudad) references ciudad(id)
+CREATE TABLE inventario (
+    id_inventario INT(11) NOT NULL AUTO_INCREMENT,
+    id_producto INT(11) NOT NULL,
+    cantidad_en_stock SMALLINT(6) NOT NULL,
+    ubicacion VARCHAR(100), 
+    PRIMARY KEY (id_inventario),
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
 );
 
-create table tipo_telefono(
-	id int auto_increment primary key,
-    descripcion varchar(100) not null
+CREATE TABLE empleado (
+    id_empleado INT(11) NOT NULL,
+    PRIMARY KEY (id_empleado),
+    nombre VARCHAR(50) NOT NULL,
+    apellido1 VARCHAR(50) NOT NULL,
+    apellido2 VARCHAR(50) NOT NULL,
+    extension VARCHAR(10) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    id_oficina INT(11) NOT NULL,
+    CONSTRAINT FK_empleado_oficina FOREIGN KEY (id_oficina) REFERENCES 	 
+    oficina(id_oficina),
+    id_jefe INT(11),
+    CONSTRAINT FK_empleado_jefe FOREIGN KEY (id_jefe) REFERENCES 
+    empleado(id_empleado),
+    puesto VARCHAR(50)
 );
 
-create table telefono(
-	id int auto_increment primary key,
-    numero int(15) not null,
-    prefijo int(5) not null,
-    cedula_cliente int(10) null,
-    id_tipo_telefono int not null,
-    nit_proveedor int(9) null,
-    constraint FK_cedula_cliente_telefono foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_nit_proveedor_telefono foreign key(nit_proveedor) references proveedor(nit),
-    constraint FK_id_tipo_telefono foreign key(id_tipo_telefono) references tipo_telefono(id)
+CREATE TABLE cliente (
+    id_cliente INT(11) NOT NULL,
+    nombre_cliente VARCHAR(50) NOT NULL,
+    telefono VARCHAR(20),
+    id_empleado_rep_ventas INT(11),
+    limite_credito DECIMAL(15),
+    PRIMARY KEY (id_cliente),
+    CONSTRAINT FK_cliente_empleado_rep_ventas FOREIGN KEY 
+    (id_empleado_rep_ventas) REFERENCES empleado(id_empleado)
 );
 
-create table tipo_pago(
-	id int auto_increment primary key,
-    descripcion varchar(100) not null
+CREATE TABLE cliente_direccion (
+    id_cliente INT(11) NOT NULL,
+    id_direccion INT(11) NOT NULL,
+    PRIMARY KEY (id_cliente, id_direccion),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
+    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
 );
 
-create table pago(
-	id int auto_increment primary key,
-    fecha date not null,
-    total double not null,
-    cedula_cliente int(10) not null,
-    id_tipo_pago int not null,
-    constraint FK_cedula_cliente_pago foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_id_tipo_pago foreign key(id_tipo_pago) references tipo_pago(id)
+CREATE TABLE cliente_direccion (
+    id_cliente INT(11) NOT NULL,
+    id_direccion INT(11) NOT NULL,
+    PRIMARY KEY (id_cliente, id_direccion),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
+    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
 );
 
-create table contacto(
-	id int auto_increment primary key,
-    nombre varchar(100) not null,
-    apellido varchar(100) not null,
-    email varchar(50) null,
-    cedula_cliente int(10) null,
-    nit_proveedor int(9) null,
-    constraint FK_cedula_cliente_contacto foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_nit_proveedor_contacto foreign key(nit_proveedor) references proveedor(nit)
+CREATE TABLE contacto (
+    id_contacto INT(11) NOT NULL AUTO_INCREMENT,
+    nombre_contacto VARCHAR(30) NOT NULL,
+    apellido_contacto VARCHAR(30) NOT NULL,
+    id_cliente INT(11) NOT NULL,
+    PRIMARY KEY (id_contacto),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
 );
 
-create table estado_pedido(
-	id int auto_increment primary key,
-    descripcion varchar(100) not null 
+CREATE TABLE pedido (
+    id_pedido INT(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY(id_pedido),
+    fecha_pedido DATE NOT NULL,
+    fecha_esperada DATE NOT NULL,
+    fecha_entrega DATE,
+    estado VARCHAR(15) NOT NULL,
+    comentarios TEXT,
+    id_cliente INT(11) NOT NULL,
+    CONSTRAINT FK_pedido_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
 );
 
-create table gamma_producto(
-	id int auto_increment primary key,
-    descripcion_txt varchar(200) not null,
-    descripcion_html varchar(200) not null,
-    imagen varchar(100) not null
+CREATE TABLE detalle_pedido (
+    id_pedido INT(11) NOT NULL,
+    id_producto INT(11) NOT NULL,
+    PRIMARY KEY (id_pedido, id_producto),
+    cantidad INT(11),
+    precio_unidad DECIMAL(15,2),
+    numero_linea SMALLINT(6),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
+    FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
 );
 
-create table dimensiones(
-	id int auto_increment primary key,
-    largo int(4) not null,
-    ancho int(4) not null,
-    alto int(4) null
+CREATE TABLE pago(
+id_transaccion VARCHAR(50) NOT NULL,
+PRIMARY KEY (id_transaccion),
+id_cliente INT(11) NOT NULL,
+forma_pago VARCHAR(40) NOT NULL,
+fecha_pago DATE NOT NULL,
+total DECIMAL(15) NOT NULL,
+CONSTRAINT FK_pago_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
 );
 
-create table producto(
-	id int auto_increment primary key,
-    nombre varchar(100) not null,
-    descripcion varchar(200) null,
-    precio_venta double not null,
-    precio_proveedor double null,
-    id_gamma_producto int not null,
-    id_dimensiones int null,
-    nit_proveedor int(9) null,
-    constraint FK_id_gamma_producto foreign key(id_gamma_producto) references gamma_producto(id),
-    constraint FK_id_dimensiones foreign key(id_dimensiones) references dimensiones(id),
-    constraint FK_nit_proveedor_prodcuto foreign key(nit_proveedor) references proveedor(nit)
-);
 
-create table inventario(
-	id int auto_increment primary key,
-    stock_mininmo int(6) null,
-    stock_maximo int(6) null,
-    stock_actual int(6) not null,
-    id_producto int not null,
-    constraint FK_id_producto_inventario foreign key(id_producto) references producto(id)
-);
-
-create table pedido(
-	id int auto_increment primary key,
-    fecha_pedido date not null,
-    fecha_esperada date not null,
-    fecha_entrega date null,
-    comentarios varchar(200) null,
-    id_estado_pedido int not null,
-    cedula_cliente int(10) not null,
-    constraint FK_cedula_cliente_peido foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_id_estado_pedido foreign key(id_estado_pedido) references estado_pedido(id)
-);
-
-create table detalle_pedido(
-	id_producto int not null,
-    id_pedido int not null,
-    cantidad int(6) not null,
-    precio_unidad double not null,
-    numero_linea int(6) not null,
-    primary key(id_producto,id_pedido),
-    constraint FK_id_producto_detalle_pedido foreign key(id_producto) references producto(id),
-    constraint FK_id_pedido_detalle_pedido foreign key(id_pedido) references pedido(id)
-);
 ```
 
 
@@ -213,295 +230,135 @@ create table detalle_pedido(
 **INSERT**
 
 ```mysql
+
 -- Países
-INSERT INTO pais (nombre) VALUES 
-('España'), 
-('Francia'), 
-('Alemania'), 
-('Italia'), 
-('Portugal'), 
-('Reino Unido'), 
-('Suiza'), 
-('Suecia'), 
-('Noruega'), 
-('Finlandia');
+
+INSERT INTO pais (nombre) 
+VALUES 
+    ('Estados Unidos'),
+    ('Canadá'),
+    ('México'),
+    ('Brasil'),
+    ('Argentina'),
+    ('España'),
+    ('Francia');
+
 
 -- Regiones
-INSERT INTO region (nombre, id_pais) VALUES 
-('Comunidad de Madrid', 1), 
-('Cataluña', 1), 
-('Île-de-France', 2), 
-('Baviera', 3), 
-('Lombardía', 4), 
-('Lisboa', 5), 
-('Inglaterra', 6), 
-('Zurich', 7), 
-('Estocolmo', 8), 
-('Oslo', 9);
+
+INSERT INTO region (nombre, id_pais)
+VALUES 
+    ('Nueva Inglaterra', 1),
+    ('Quebec', 2),            
+    ('Distrito Federal', 3),  
+    ('São Paulo', 4),         
+    ('Buenos Aires', 5),      
+    ('Comunidad de Madrid', 6),
+    ('Île-de-France', 7);     
 
 -- Ciudades
-INSERT INTO ciudad (nombre, id_region) VALUES 
-('Madrid', 1), 
-('Barcelona', 1), 
-('París', 3), 
-('Munich', 4), 
-('Milán', 5), 
-('Lisboa', 6), 
-('Londres', 7), 
-('Zúrich', 8), 
-('Estocolmo', 9), 
-('Oslo', 10);
+
+INSERT INTO ciudad (nombre, id_region)
+VALUES 
+    ('Boston', 1),              
+    ('Montreal', 2),            
+    ('Ciudad de México', 3),    
+    ('São Paulo', 4),           
+    ('Buenos Aires', 5),        
+    ('Madrid', 6),              
+    ('París', 7); 
+
 
 -- Oficinas
-INSERT INTO oficina (cod_postal, linea_d1, id_ciudad) VALUES 
-(28001, 'Calle Gran Vía, 10', 1), 
-(08001, 'Calle Diagonal, 20', 2), 
-(75001, 'Avenue des Champs-Élysées, 30', 3), 
-(80333, 'Karlstraße, 40', 4), 
-(20121, 'Via Montenapoleone, 50', 5), 
-(1000, 'Rua Augusta, 60', 6), 
-(1213, 'Fleet Street, 70', 7), 
-(8001, 'Bahnhofstrasse, 80', 8),
-(11446, 'Sveavägen, 90', 9), 
-(167, 'Karl Johans gate, 100', 10);
+
+INSERT INTO oficina (nombre, telefono)
+VALUES 
+    ('Oficina Central', '123-456-7890'),
+    ('Sucursal Norte', '987-654-3210'),
+    ('Sucursal Sur', '234-567-8901'),
+    ('Sucursal Este', '345-678-9012'),
+    ('Sucursal Oeste', '456-789-0123'),
+    ('Oficina Principal', '567-890-1234'),
+    ('Oficina Regional', '678-901-2345');
+
+
+-- oficinas direccion
+
+INSERT INTO oficina_direccion (id_oficina, id_direccion)
+VALUES 
+    (1, 1), -- Oficina Central - Boston, Estados Unidos
+    (2, 2), -- Sucursal Norte - Montreal, Canadá
+    (3, 3), -- Sucursal Sur - Ciudad de México, México
+    (4, 4), -- Sucursal Este - São Paulo, Brasil
+    (5, 5), -- Sucursal Oeste - Buenos Aires, Argentina
+    (6, 6), -- Oficina Principal - Madrid, España
+    (7, 7); -- Oficina Regional - París, Francia
+
+
+-- gamas
+
+INSERT INTO gama_producto (gama, descripcion_texto, descripcion_html, imagen)
+VALUES 
+    ('Gama Alta', 'Productos de alta calidad con características premium.', '<p>Productos de alta calidad con características premium.</p>', 'imagen_gama_alta.jpg'),
+    ('Gama Media', 'Productos de calidad aceptable a precios accesibles.', '<p>Productos de calidad aceptable a precios accesibles.</p>', 'imagen_gama_media.jpg'),
+    ('Gama Baja', 'Productos económicos para presupuestos ajustados.', '<p>Productos económicos para presupuestos ajustados.</p>', 'imagen_gama_baja.jpg');
+
 
 -- Empleados
-INSERT INTO empleado (cedula, nombre, apellido1, apellido2, extension, puesto, email, jefe, id_oficina) VALUES 
-(1234567890, 'Juan', 'González', 'Pérez', 12345, 'Gerente', 'juan@email.com', NULL, 1), 
-(1234567891, 'María', 'López', 'Martínez', 23456, 'Vendedor', 'maria@email.com', 1234567890, 2), 
-(1234567892, 'Carlos', 'Rodríguez', 'Gómez', 34567, 'Asistente', 'carlos@email.com', 1234567890, 1), 
-(1234567893, 'Ana', 'Sánchez', 'García', 45678, 'Contador', 'ana@email.com', 1234567890, 2), 
-(1234567894, 'Pedro', 'Martín', 'Fernández', 56789, 'Desarrollador', 'pedro@email.com', 1234567891, 1), 
-(1234567895, 'Sara', 'Díaz', 'Álvarez', 67890, 'Analista', 'sara@email.com', 1234567891, 2), 
-(1234567896, 'Luis', 'Ruiz', 'Jiménez', 78901, 'Diseñador', 'luis@email.com', 1234567890, 1), 
-(1234567897, 'Elena', 'Pérez', 'Romero', 89012, 'Marketing', 'elena@email.com', 1234567890, 2),
-(1234567898, 'Diego', 'Gómez', 'Hernández', 90123, 'Recepcionista', 'diego@email.com', 1234567892, 1), 
-(1234567899, 'Laura', 'Fernández', 'Díaz', 12345, 'Recursos Humanos', 'laura@email.com', 1234567892, 2);
 
 -- Clientes
-INSERT INTO cliente (cedula, nombre, linea_d1, linea_d2, id_ciudad, cedula_empleado) VALUES 
-(1122334455, 'John Doe', 'Calle 123', 'Piso 4', 1, 1234567890), 
-(1122334456, 'Jane Smith', 'Avenida 456', 'Apartamento 2B', 2, 1234567891), 
-(1122334457, 'Michael Johnson', 'Carrera 789', NULL, 3, 1234567892), 
-(1122334458, 'Emily Davis', 'Calle 012', 'Oficina 7', 1, 1234567893), 
-(1122334459, 'William Martinez', 'Avenida XYZ', 'Piso 10', 2, 1234567894), 
-(1122334460, 'Sarah Brown', 'Calle 345', 'Apartamento 5A', 3, 1234567895), 
-(1122334461, 'David Wilson', 'Carrera 678', NULL, 1, 1234567896), 
-(1122334462, 'Olivia Taylor', 'Avenida 901', 'Oficina 3B', 2, 1234567897), 
-(1122334463, 'Emma Anderson', 'Calle UVW', 'Piso 8', 3, 1234567898), 
-(1122334464, 'James Wilson', 'Avenida 234', 'Apartamento 12C', 1, 1234567899);
-
 
 -- Proveedores
-INSERT INTO proveedor (nit, nombre) VALUES 
-(123456789, 'Acme Corporation'),
-(234567890, 'Smith & Co.'),
-(345678901, 'Johnson Enterprises'),
-(456789012, 'Martinez Ltd.'),
-(567890123, 'Brown Industries'),
-(678901234, 'Taylor Group'),
-(789012345, 'Wilson & Sons'),
-(890123456, 'Anderson Supplies'),
-(901234567, 'Taylor & Martinez'),
-(101234567, 'Johnson Corp.');
-
 
 -- Sucursales
-INSERT INTO sucursal (direccion, nit_proveedor, id_ciudad) VALUES 
-('Calle 123, Local 1', 123456789, 1),
-('Avenida 456, Piso 2', 234567890, 2),
-('Carrera 789, Edificio A', 345678901, 3),
-('Avenida XYZ, Torre B', 456789012, 1),
-('Calle UVW, Bloque 3', 567890123, 2),
-('Carrera 678, Oficina 5', 678901234, 3),
-('Avenida 901, Local 10', 789012345, 1),
-('Calle 012, Piso 3', 890123456, 2),
-('Avenida 234, Edificio C', 901234567, 3),
-('Calle 345, Torre D', 101234567, 1);
-
 
 -- Tipo de Teléfono
-INSERT INTO tipo_telefono (descripcion) VALUES 
-('Móvil'), 
-('Fijo'), 
-('Fax'), 
-('Trabajo'), 
-('Casa');
 
 -- Inserts de teléfonos para proveedores
-INSERT INTO telefono (numero, prefijo, id_tipo_telefono, nit_proveedor)
-VALUES 
-(612345678, 1, 1, 101234567), -- Teléfono del proveedor Johnson Corp.
-(623456789, 1, 2, 123456789), -- Teléfono del proveedor Acme Corporation
-(634567890, 1, 1, 234567890), -- Teléfono del proveedor Smith & Co.
-(645678901, 1, 2, 345678901), -- Teléfono del proveedor Johnson Enterprises
-(656789012, 1, 1, 456789012), -- Teléfono del proveedor Martinez Ltd.
-(667890123, 1, 2, 567890123), -- Teléfono del proveedor Brown Industries
-(678901234, 1, 1, 678901234), -- Teléfono del proveedor Taylor Group
-(689012345, 1, 2, 789012345), -- Teléfono del proveedor Wilson & Sons
-(690123456, 1, 1, 890123456), -- Teléfono del proveedor Anderson Supplies
-(601234567, 1, 2, 901234567); -- Teléfono del proveedor Taylor & Martinez
 
 -- Inserts de teléfonos para oficinas
-INSERT INTO telefono (numero, prefijo, id_tipo_telefono, id_oficina)
-VALUES 
-(912345678, 34, 1, 1), -- Teléfono de la oficina 1
-(934567890, 34, 2, 2), -- Teléfono de la oficina 2
-(945678901, 34, 1, 3), -- Teléfono de la oficina 3
-(956789012, 34, 2, 4), -- Teléfono de la oficina 4
-(967890123, 34, 1, 5), -- Teléfono de la oficina 5
-(978901234, 34, 2, 6), -- Teléfono de la oficina 6
-(989012345, 34, 1, 7), -- Teléfono de la oficina 7
-(990123456, 34, 2, 8), -- Teléfono de la oficina 8
-(901234567, 34, 1, 9), -- Teléfono de la oficina 9
-(912345678, 34, 2, 10); -- Teléfono de la oficina 10
 
 -- Inserts de teléfonos para clientes
-INSERT INTO telefono (numero, prefijo, cedula_cliente, id_tipo_telefono)
-VALUES 
-(12345678, 57, 1122334455, 1), -- Teléfono de John Doe
-(23456789, 57, 1122334456, 2), -- Teléfono de Jane Smith
-(34567890, 57, 1122334457, 1), -- Teléfono de Michael Johnson
-(45678901, 57, 1122334458, 1), -- Teléfono de Emily Davis
-(56789012, 57, 1122334459, 2), -- Teléfono de William Martinez
-(67890123, 57, 1122334460, 1), -- Teléfono de Sarah Brown
-(78901234, 57, 1122334461, 1), -- Teléfono de David Wilson
-(89012345, 57, 1122334462, 2), -- Teléfono de Olivia Taylor
-(90123456, 57, 1122334463, 1), -- Teléfono de Emma Anderson
-(12345678, 57, 1122334464, 2); -- Teléfono de James Wilson
 
 -- Tipos de Pago
-INSERT INTO tipo_pago (descripcion) VALUES 
-('Efectivo'), 
-('Tarjeta de Crédito'), 
-('Transferencia Bancaria'), 
-('PayPal'), 
-('Cheque');
 
 -- Pagos
-INSERT INTO pago (fecha, total, cedula_cliente, id_tipo_pago) VALUES 
-('2024-04-20', 150.00, 1122334455, 1),
-('2024-04-19', 200.00, 1122334456, 2),
-('2024-04-18', 100.00, 1122334457, 1),
-('2024-04-17', 250.00, 1122334458, 2),
-('2024-04-16', 300.00, 1122334459, 1),
-('2024-04-15', 400.00, 1122334460, 2),
-('2024-04-14', 200.00, 1122334461, 1),
-('2024-04-13', 150.00, 1122334462, 2),
-('2024-04-12', 100.00, 1122334463, 1),
-('2024-04-11', 50.00, 1122334464, 2);
 
+INSERT INTO pago (id_transaccion, id_cliente, forma_pago, fecha_pago, total)
+VALUES
+    ('T001', 122334455, 'Tarjeta de crédito', '2023-05-10', 500.00),
+    ('T002', 223344566, 'Transferencia bancaria', '2023-05-12', 750.00),
+    ('T003', 334455677, 'Efectivo', '2023-05-15', 1000.00),
+    ('T004', 445567788, 'Tarjeta de débito', '2023-05-18', 800.00),
+    ('T005', 556678899, 'Cheque', '2023-05-20', 600.00);
 
 -- Contactos
-INSERT INTO contacto (nombre, apellido, email, cedula_cliente, nit_proveedor) VALUES 
-('Juan', 'Perez', 'juan.perez@example.com', 1122334455, NULL),
-('Ana', 'Gomez', 'ana.gomez@example.com', 1122334456, NULL),
-('Pedro', 'Rodriguez', 'pedro.rodriguez@example.com', 1122334457, NULL),
-('Maria', 'Lopez', 'maria.lopez@example.com', 1122334458, NULL),
-('Luis', 'Garcia', 'luis.garcia@example.com', 1122334459, NULL),
-('Laura', 'Martinez', 'laura.martinez@example.com', 1122334460, NULL),
-('Carlos', 'Sanchez', 'carlos.sanchez@example.com', 1122334461, NULL),
-('Sofia', 'Diaz', 'sofia.diaz@example.com', 1122334462, NULL),
-('Pablo', 'Hernandez', 'pablo.hernandez@example.com', 1122334463, NULL),
-('Elena', 'Torres', 'elena.torres@example.com', 1122334464, NULL),
-('Manuel', 'Gutierrez', 'manuel.gutierrez@example.com', NULL, 123456789),
-('Marta', 'Fernandez', 'marta.fernandez@example.com', NULL, 234567890),
-('Roberto', 'Ruiz', 'roberto.ruiz@example.com', NULL, 345678901),
-('Carmen', 'Santos', 'carmen.santos@example.com', NULL, 456789012),
-('Javier', 'Morales', 'javier.morales@example.com', NULL, 567890123),
-('Isabel', 'Jimenez', 'isabel.jimenez@example.com', NULL, 678901234),
-('Diego', 'Alvarez', 'diego.alvarez@example.com', NULL, 789012345),
-('Lucia', 'Nunez', 'lucia.nunez@example.com', NULL, 890123456),
-('Eva', 'Garcia', 'eva.garcia@example.com', NULL, 901234567),
-('Antonio', 'Romero', 'antonio.romero@example.com', NULL, 101234567);
-
 
 -- Estados de Pedido
-INSERT INTO estado_pedido (descripcion) VALUES 
-('En Proceso'), 
-('En Ruta'), 
-('Entregado'), 
-('Cancelado');
 
 -- Gamas de Producto
-INSERT INTO gamma_producto (descripcion_txt, descripcion_html, imagen) VALUES 
-('Electrónica', '<b>Electrónica</b>', 'electronica.jpg'), 
-('Ropa', '<b>Ropa</b>', 'ropa.jpg'), 
-('Hogar', '<b>Hogar</b>', 'hogar.jpg'), 
-('Alimentación', '<b>Alimentación</b>', 'alimentacion.jpg'), 
-('Belleza', '<b>Belleza</b>', 'belleza.jpg'), 
-('Deporte', '<b>Deporte</b>', 'deporte.jpg'), 
-('Juguetes', '<b>Juguetes</b>', 'juguetes.jpg'), 
-('Libros', '<b>Libros</b>', 'libros.jpg'), 
-('Herramientas', '<b>Herramientas</b>', 'herramientas.jpg'), 
-('Automoción', '<b>Automoción</b>', 'automocion.jpg');
 
 -- Dimensiones
-INSERT INTO dimensiones (largo, ancho, alto) VALUES 
-(10, 20, 5), 
-(30, 40, 15), 
-(20, 15, 10), 
-(25, 35, 20), 
-(40, 30, 25), 
-(15, 25, 10), 
-(35, 45, 30), 
-(50, 40, 35), 
-(45, 55, 25), 
-(60, 50, 40);
 
 -- Productos
-INSERT INTO producto (nombre, descripcion, precio_venta, precio_proveedor, id_gamma_producto, id_dimensiones, nit_proveedor) VALUES 
-('Laptop Lenovo', 'Portátil de alto rendimiento', 1200.00, 900.00, 1, 1, 123456789),
-('Smartphone Samsung', 'Teléfono inteligente con pantalla OLED', 800.00, 600.00, 2, 2, 234567890),
-('TV Sony', 'Televisor 4K de última generación', 1500.00, 1200.00, 3, 3, 345678901),
-('Impresora HP', 'Impresora multifuncional inalámbrica', 300.00, 200.00, 1, 1, 456789012),
-('Tablet Apple', 'Tableta con pantalla Retina', 700.00, 500.00, 2, 2, 567890123),
-('Monitor Dell', 'Monitor de alta definición', 400.00, 300.00, 3, 3, 678901234),
-('Altavoces Logitech', 'Sistema de altavoces envolvente', 150.00, 100.00, 1, 1, 789012345),
-('Cámara Canon', 'Cámara réflex digital profesional', 1000.00, 800.00, 2, 2, 890123456),
-('Router TP-Link', 'Router Wi-Fi de doble banda', 80.00, 50.00, 3, 3, 901234567),
-('Teclado Razer', 'Teclado mecánico para gaming', 120.00, 90.00, 1, 1, 101234567);
-
 
 -- Inventario
-INSERT INTO inventario (stock_mininmo, stock_maximo, stock_actual, id_producto) VALUES 
-(10, 100, 50, 1), 
-(20, 200, 100, 2), 
-(5, 50, 20, 3), 
-(30, 300, 150, 4), 
-(15, 150, 80, 5), 
-(25, 250, 120, 6), 
-(8, 80, 40, 7), 
-(40, 400, 200, 8),
-(12, 120, 60, 9), 
-(50, 500, 250, 10);
 
 -- Pedidos
-INSERT INTO pedido (fecha_pedido, fecha_esperada, fecha_entrega, comentarios, id_estado_pedido, cedula_cliente) VALUES 
-('2024-04-01', '2024-04-08', '2024-04-09', 'Pedido urgente', 1, 1122334455),
-('2024-04-02', '2024-04-09', NULL, 'Envío pendiente de confirmación', 2, 1122334456),
-('2024-04-03', '2024-04-10', '2024-04-11', NULL, 3, 1122334457),
-('2024-04-04', '2024-04-11', NULL, 'Productos agotados, se reprogramará entrega', 1, 1122334458),
-('2024-04-05', '2024-04-12', '2024-04-14', 'Pedido para evento corporativo', 2, 1122334459),
-('2024-04-06', '2024-04-13', NULL, 'Envío retrasado por condiciones climáticas', 3, 1122334460),
-('2024-04-07', '2024-04-14', '2024-04-15', NULL, 1, 1122334461),
-('2024-04-08', '2024-04-15', '2024-04-16', 'Entrega confirmada por el cliente', 2, 1122334462),
-('2024-04-09', '2024-04-16', NULL, 'Productos dañados en tránsito, se solicita reemplazo', 3, 1122334463),
-('2024-04-10', '2024-04-17', '2024-04-18', 'Pedido estándar', 1, 1122334464);
 
 
 -- Detalles de Pedido
-INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, numero_linea) VALUES 
-(1, 1, 2, 250.00, 1), 
-(2, 2, 3, 30.00, 2), 
-(3, 3, 1, 150.00, 3), 
-(4, 4, 5, 10.00, 4), 
-(5, 5, 2, 20.00, 5), 
-(6, 6, 3, 25.00, 6), 
-(7, 7, 1, 50.00, 7), 
-(8, 8, 4, 15.00, 8),
-(9, 9, 2, 80.00, 9), 
-(10, 10, 3, 100.00, 10);
+
+INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unidad, numero_linea)
+VALUES 
+    (1, 1, 2, 800.00, 1),  -- Detalle del pedido 1 (Carlos Pérez) - Producto 1 (Laptop HP)
+    (2, 2, 3, 500.00, 1),  -- Detalle del pedido 2 (Ana García) - Producto 2 (Teléfono Samsung)
+    (3, 3, 1, 250.00, 1),  -- Detalle del pedido 3 (Pedro Martínez) - Producto 3 (Tablet Lenovo)
+    (4, 4, 2, 1200.00, 1), -- Detalle del pedido 4 (María Rodríguez) - Producto 4 (TV LG)
+    (5, 5, 1, 1000.00, 1), -- Detalle del pedido 5 (Laura López) - Producto 5 (Refrigerador Whirlpool)
+    (6, 6, 3, 50.00, 1),   -- Detalle del pedido 6 (Juan Hernández) - Producto 6 (Licuadora Oster)
+    (7, 1, 2, 800.00, 1), -- Detalle del pedido 7 (Sofía Díaz) - Producto 7 (TV LG)
+    (8, 1, 1, 800.00, 1);  -- Detalle del pedido 8 (Miguel Torres) - Producto 1 (Laptop HP)
 ```
 
 **Consultas sobre una tabla**
@@ -509,39 +366,80 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 1. Devuelve un listado con el código de oficina y la ciudad donde hay oficinas.
 
    ```mysql
-   select o.id as "Codigo Oficina", c.nombre from oficina o join ciudad c on o.id_ciudad = c.id
+   
+    SELECT o.id_oficina, c.nombre AS ciudad FROM oficina
+    AS o INNER JOIN oficina_direccion AS od ON o.id_oficina = 
+    od.id_oficina INNER JOIN direccion AS d ON od.id_direccion = 
+    d.id_direccion INNER JOIN ciudad AS c ON d.id_ciudad = c.id_ciudad;
+	+------------+-------------------+
+	| id_oficina | ciudad            |
+	+------------+-------------------+
+	|          1 | Boston            |
+	|          2 | Montreal          |
+	|          3 | Ciudad de México  |
+	|          4 | São Paulo         |
+	|          5 | Buenos Aires      |
+	|          6 | Madrid            |
+	|          7 | París             |
+	+------------+-------------------+
+	7 rows in set (0.01 sec)
    ```
 
    
 
 2. Devuelve un listado con la ciudad y el teléfono de las oficinas de España.
 
-   
-
    ```mysql
+
+	SELECT c.nombre AS ciudad, o.telefono
+	FROM oficina AS o
+	INNER JOIN oficina_direccion AS od ON o.id_oficina = od.id_oficina
+	INNER JOIN direccion AS d ON od.id_direccion = d.id_direccion
+	INNER JOIN ciudad AS c ON d.id_ciudad = c.id_ciudad
+	INNER JOIN region AS r ON c.id_region = r.id_region
+	INNER JOIN pais AS p ON r.id_pais = p.id_pais
+	WHERE p.nombre = 'España';
+
+	+--------+--------------+
+	| ciudad | telefono     |
+	+--------+--------------+
+	| Madrid | 567-890-1234 |
+	+--------+--------------+
+	1 row in set (0.00 sec)
    
    ```
 
    
+3. Devuelve un listado con el nombre, apellidos y email de los empleados cuyo jefe tiene un código de jefe igual a 7.
 
-3. Devuelve un listado con el nombre, apellidos y email de los empleados cuyo
-   jefe tiene un código de jefe igual a 7.
-
-   
 
    ```mysql
-   
+
+   SELECT e.nombre, e.apellido1, e.apellido2, e.email
+   FROM empleado AS e
+   INNER JOIN empleado AS j ON e.id_jefe = j.id_empleado
+   WHERE j.id_empleado = 7;
+
+   Empty set (0.00 sec)
    ```
 
    
-
 4. Devuelve el nombre del puesto, nombre, apellidos y email del jefe de la
    empresa.
 
    
 
    ```mysql
-   
+
+   SELECT e.nombre, e.apellido1, e.apellido2, e.puesto
+   FROM empleado AS e WHERE e.puesto = 'Gerente';
+	+--------+-----------+-----------+---------+
+	| nombre | apellido1 | apellido2 | puesto  |
+	+--------+-----------+-----------+---------+
+	| Juan   | González  | López     | Gerente |
+	+--------+-----------+-----------+---------+
+	1 row in set (0.00 sec)
+
    ```
 
    
@@ -549,20 +447,43 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 5. Devuelve un listado con el nombre, apellidos y puesto de aquellos
    empleados que no sean representantes de ventas.
 
-   
-
    ```mysql
-   
+
+	SELECT e.nombre, e.apellido1, e.apellido2, e.puesto
+	FROM empleado AS e
+	WHERE e.puesto != 'Representante de Ventas';
+	+--------+-----------+------------+-----------------------+
+	| nombre | apellido1 | apellido2  | puesto                |
+	+--------+-----------+------------+-----------------------+
+	| Juan   | González  | López      | Gerente               |
+	| María  | Martínez  | García     | Asistente de Gerencia |
+	| Carlos | Pérez     | Fernández  | Analista de Ventas    |
+	| Laura  | Díaz      | Rodríguez  | Contador              |
+	| Ana    | Sánchez   | López      | Recepcionista         |
+	+--------+-----------+------------+-----------------------+
+	5 rows in set (0.00 sec)
    ```
 
    
 
 6. Devuelve un listado con el nombre de los todos los clientes españoles.
 
-   
-
    ```mysql
    
+   SELECT DISTINCT c.nombre_cliente FROM cliente AS c INNER JOIN 
+   cliente_direccion AS cd ON c.id_cliente = cd.id_cliente INNER JOIN 
+   direccion AS d ON cd.id_direccion = d.id_direccion INNER JOIN ciudad AS 
+   ci ON d.id_ciudad = ci.id_ciudad INNER JOIN region AS r ON ci.id_region 
+   = r.id_region INNER
+   JOIN pais AS p ON r.id_pais = p.id_pais WHERE p.nombre = 'España';
+
+	+-----------------+
+	| nombre_cliente  |
+	+-----------------+
+	| Juan Hernández  |
+	+-----------------+
+	1 row in set (0.02 sec)
+
    ```
 
    
@@ -570,10 +491,18 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 7. Devuelve un listado con los distintos estados por los que puede pasar un
    pedido.
 
-   
-
    ```mysql
    
+   SELECT DISTINCT estado
+   FROM pedido;
+	+------------+
+	| estado     |
+	+------------+
+	| En Proceso |
+	| Entregado  |
+	| Rechazado  |
+	+------------+
+	3 rows in set (0.00 sec)
    ```
 
    
@@ -585,9 +514,22 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
    • Utilizando la función DATE_FORMAT de MySQL.
    • Sin utilizar ninguna de las funciones anteriores.
 
-   
-
    ```mysql
+   
+   - SELECT DISTINCT id_cliente
+     FROM pago
+     WHERE YEAR(fecha_pago) = 2008;
+     Empty set (0.00 sec)
+
+   - SELECT DISTINCT id_cliente
+     FROM pago
+     WHERE DATE_FORMAT(fecha_pago, '%Y') = '2008';
+     Empty set (0.00 sec)
+
+   - SELECT DISTINCT id_cliente
+     FROM pago
+     WHERE fecha_pago >= '2008-01-01' AND fecha_pago < '2009-01-01';
+     Empty set (0.00 sec)
    
    ```
 
@@ -597,25 +539,41 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
    esperada y fecha de entrega de los pedidos que no han sido entregados a
    tiempo.
 
-   
-
    ```mysql
    
+   SELECT id_pedido, id_cliente, fecha_esperada, fecha_entrega
+   FROM pedido
+   WHERE fecha_entrega > fecha_esperada;
+   Empty set (0.00 sec)
    ```
 
    
 
 10. Devuelve un listado con el código de pedido, código de cliente, fecha
-    esperada y fecha de entrega de los pedidos cuya fecha de entrega ha sido al
-    menos dos días antes de la fecha esperada.
+    esperada y fecha de entrega de los pedidos cuya fecha de entrega ha sido al menos dos días antes de la fecha esperada.
     • Utilizando la función ADDDATE de MySQL.
     • Utilizando la función DATEDIFF de MySQL.
-    • ¿Sería posible resolver esta consulta utilizando el operador de suma + o
-    resta -?
+    • ¿Sería posible resolver esta consulta utilizando el operador de suma 
+    + o resta -?
 
     
 
     ```mysql
+
+    - SELECT id_pedido, id_cliente, fecha_esperada, fecha_entrega
+      FROM pedido
+      WHERE fecha_entrega < ADDDATE(fecha_esperada, -2);
+      Empty set (0.01 sec)
+
+    - SELECT id_pedido, id_cliente, fecha_esperada, fecha_entrega
+      FROM pedido
+      WHERE DATEDIFF(fecha_esperada, fecha_entrega) >= 2;
+      Empty set (0.01 sec)
+
+    - SELECT id_pedido, id_cliente, fecha_esperada, fecha_entrega
+      FROM pedido
+      WHERE fecha_entrega < fecha_esperada - INTERVAL 2 DAY;
+      Empty set (0.01 sec)
     
     ```
 
@@ -623,10 +581,12 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
 11. Devuelve un listado de todos los pedidos que fueron rechazados en 2009.
 
-    
-
     ```mysql
     
+    SELECT id_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado
+    FROM pedido
+    WHERE estado = 'rechazado' AND YEAR(fecha_pedido) = 2009;
+    Empty set (0.00 sec)
     ```
 
     
@@ -634,10 +594,12 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 12. Devuelve un listado de todos los pedidos que han sido entregados en el
     mes de enero de cualquier año.
 
-    
-
     ```mysql
     
+      SELECT id_pedido, fecha_pedido, fecha_esperada, fecha_entrega
+      FROM pedido
+      WHERE MONTH(fecha_entrega) = 1;
+      Empty set (0.00 sec)
     ```
 
     
@@ -645,10 +607,14 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 13. Devuelve un listado con todos los pagos que se realizaron en el
     año 2008 mediante Paypal. Ordene el resultado de mayor a menor.
 
-    
-
     ```mysql
-    
+
+    SELECT *
+    FROM pago
+    WHERE YEAR(fecha_pago) = 2008 AND forma_pago = 'Paypal'
+    ORDER BY total DESC;
+    Empty set (0.00 sec)
+
     ```
 
     
@@ -657,10 +623,19 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
     tabla pago. Tenga en cuenta que no deben aparecer formas de pago
     repetidas.
 
-    
-
     ```mysql
-    
+    SELECT DISTINCT forma_pago
+    FROM pago;
+	+------------------------+
+	| forma_pago             |
+	+------------------------+
+	| Tarjeta de crédito     |
+	| Transferencia bancaria |
+	| Efectivo               |
+	| Tarjeta de débito      |
+	| Cheque                 |
+	+------------------------+
+	5 rows in set (0.00 sec)
     ```
 
     
@@ -670,21 +645,32 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
     deberá estar ordenado por su precio de venta, mostrando en primer lugar
     los de mayor precio.
 
-    
-
     ```mysql
-    
+
+    SELECT * FROM producto WHERE gama = (SELECT gama FROM gama_producto 
+    WHERE gama = 'Ornamentales')   AND id_producto IN (SELECT id_producto 
+    FROM inventario WHERE cantidad_en_stock > 100) ORDER BY precio_venta 
+    DESC;
+    Empty set (0.01 sec)
+
     ```
 
     
 
-16. Devuelve un listado con todos los clientes que sean de la ciudad de Madrid y
-    cuyo representante de ventas tenga el código de empleado 11 o 30.
-
-    
+16. Devuelve un listado con todos los clientes que sean de la ciudad de Madrid y cuyo representante de ventas tenga el código de empleado 11 o 30.
 
     ```mysql
-    
+
+    SELECT *
+    FROM cliente
+    WHERE id_cliente IN (
+    SELECT id_cliente
+    FROM cliente_direccion
+    WHERE id_direccion IN (SELECT id_direccion FROM direccion WHERE 
+    id_ciudad IN (SELECT id_ciudad FROM ciudad WHERE nombre = 'Madrid'))
+    ) AND id_empleado_rep_ventas IN (11, 30);
+
+    Empty set (0.01 sec)
     ```
 
     
@@ -693,13 +679,47 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 **Resuelva todas las consultas utilizando la sintaxis de SQL1 y SQL2. Las consultas con**
 **sintaxis de SQL2 se deben resolver con INNER JOIN y NATURAL JOIN.**
 
-1. Obtén un listado con el nombre de cada cliente y el nombre y apellido de su
-   representante de ventas.
-
+1. Obtén un listado con el nombre de cada cliente y el nombre y apellido de su representante de ventas.
    
-
    ```mysql
-   
+
+  	SELECT cliente.nombre_cliente, empleado.nombre, empleado.apellido
+        FROM cliente, empleado
+        WHERE cliente.id_empleado_rep_ventas = empleado.id_empleado;
+
+	+-------------------+--------+-----------+
+	| nombre_cliente    | nombre | apellido1 |
+	+-------------------+--------+-----------+
+	| Carlos Pérez      | Juan   | González  |
+	| Ana García        | María  | Martínez  |
+	| Pedro Martínez    | Carlos | Pérez     |
+	| María Rodríguez   | Laura  | Díaz      |
+	| Laura López       | Juan   | González  |
+	| Juan Hernández    | María  | Martínez  |
+	| Sofía Díaz        | Carlos | Pérez     |
+	| Miguel Torres     | Laura  | Díaz      |
+	+-------------------+--------+-----------+
+	8 rows in set (0.00 sec)
+
+   	SELECT cliente.nombre_cliente, empleado.nombre, empleado.apellido
+	FROM cliente
+	INNER JOIN empleado ON cliente.id_empleado_rep_ventas = 
+        empleado.id_empleado;
+
+ 	+-------------------+--------+-----------+
+	| nombre_cliente    | nombre | apellido1 |
+	+-------------------+--------+-----------+
+	| Carlos Pérez      | Juan   | González  |
+	| Ana García        | María  | Martínez  |
+	| Pedro Martínez    | Carlos | Pérez     |
+	| María Rodríguez   | Laura  | Díaz      |
+	| Laura López       | Juan   | González  |
+	| Juan Hernández    | María  | Martínez  |
+	| Sofía Díaz        | Carlos | Pérez     |
+	| Miguel Torres     | Laura  | Díaz      |
+	+-------------------+--------+-----------+
+	8 rows in set (0.00 sec)
+
    ```
 
    
@@ -707,10 +727,40 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 2. Muestra el nombre de los clientes que hayan realizado pagos junto con el
    nombre de sus representantes de ventas.
 
-   
-
    ```mysql
-   
+
+	SELECT cliente.nombre_cliente, empleado.nombre, empleado.apellido
+	FROM cliente, empleado, pago
+	WHERE cliente.id_empleado_rep_ventas = empleado.id_empleado
+	AND cliente.id_cliente = pago.id_cliente;
+
+	+-------------------+--------+-----------+
+	| nombre_cliente    | nombre | apellido1 |
+	+-------------------+--------+-----------+
+	| Carlos Pérez      | Juan   | González  |
+	| Ana García        | María  | Martínez  |
+	| Pedro Martínez    | Carlos | Pérez     |
+	| María Rodríguez   | Laura  | Díaz      |
+	| Laura López       | Juan   | González  |
+	+-------------------+--------+-----------+
+	5 rows in set (0.01 sec)
+
+
+	SELECT cliente.nombre_cliente, empleado.nombre, empleado.apellido
+	FROM cliente
+	INNER JOIN empleado ON cliente.id_empleado_rep_ventas = 		empleado.id_empleado
+	INNER JOIN pago ON cliente.id_cliente = pago.id_cliente;
+
+   	+-------------------+--------+-----------+
+	| nombre_cliente    | nombre | apellido1 |
+	+-------------------+--------+-----------+
+	| Carlos Pérez      | Juan   | González  |
+	| Ana García        | María  | Martínez  |
+	| Pedro Martínez    | Carlos | Pérez     |
+	| María Rodríguez   | Laura  | Díaz      |
+	| Laura López       | Juan   | González  |
+	+-------------------+--------+-----------+
+	5 rows in set (0.00 sec)
    ```
 
    
@@ -718,31 +768,52 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 3. Muestra el nombre de los clientes que no hayan realizado pagos junto con
    el nombre de sus representantes de ventas.
 
-   
-
    ```mysql
-   
+
+   SELECT cliente.nombre_cliente, empleado.nombre, empleado.apellido1
+   FROM cliente, empleado
+   WHERE cliente.id_empleado_rep_ventas = empleado.id_empleado
+   AND cliente.id_cliente NOT IN (SELECT id_cliente FROM pago);
+
+        +-----------------+--------+-----------+
+	| nombre_cliente  | nombre | apellido1 |
+	+-----------------+--------+-----------+
+	| Juan Hernández  | María  | Martínez  |
+	| Sofía Díaz      | Carlos | Pérez     |
+	| Miguel Torres   | Laura  | Díaz      |
+	+-----------------+--------+-----------+
+	3 rows in set (0.00 sec)
+
+   SELECT cliente.nombre_cliente, empleado.nombre, empleado.apellido1
+   FROM cliente
+   INNER JOIN empleado ON cliente.id_empleado_rep_ventas = 
+   empleado.id_empleado
+   LEFT JOIN pago ON cliente.id_cliente = pago.id_cliente
+   WHERE pago.id_transaccion IS NULL;
+
+	+-----------------+--------+-----------+
+	| nombre_cliente  | nombre | apellido1 |
+	+-----------------+--------+-----------+
+	| Juan Hernández  | María  | Martínez  |
+	| Sofía Díaz      | Carlos | Pérez     |
+	| Miguel Torres   | Laura  | Díaz      |
+	+-----------------+--------+-----------+
+	3 rows in set (0.00 sec)
    ```
 
    
 
-4. Devuelve el nombre de los clientes que han hecho pagos y el nombre de sus
-   representantes junto con la ciudad de la oficina a la que pertenece el
-   representante.
-
-   
+4. Devuelve el nombre de los clientes que han hecho pagos y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante.
 
    ```mysql
-   
+
    ```
 
    
 
 5. Devuelve el nombre de los clientes que no hayan hecho pagos y el nombre
-   de sus representantes junto con la ciudad de la oficina a la que pertenece el
-   representante.
-
-   
+   de sus representantes junto con la ciudad de la oficina a la que 
+   pertenece el representante.
 
    ```mysql
    
@@ -752,21 +823,42 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
 6. Lista la dirección de las oficinas que tengan clientes en Fuenlabrada.
 
-   
-
    ```mysql
    
+   SELECT direccion.linea_direccion1, direccion.linea_direccion2, 
+   direccion.barrio, direccion.codigo_postal
+   FROM direccion
+   NATURAL JOIN ciudad
+   NATURAL JOIN oficina
+   NATURAL JOIN cliente
+   WHERE ciudad.nombre = 'Fuenlabrada';
+   
+   Empty set (0.01 sec)
    ```
 
    
 
-7. Devuelve el nombre de los clientes y el nombre de sus representantes junto
-   con la ciudad de la oficina a la que pertenece el representante.
-
-   
+7. Devuelve el nombre de los clientes y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante.
 
    ```mysql
-   
+
+   SELECT c.nombre_cliente, e.nombre AS nombre_representante, e.apellido1 AS apellido_representante, o_ciudad.nombre AS
+   ciudad_oficina FROM cliente c INNER JOIN empleado e ON c.id_empleado_rep_ventas = e.id_empleado INNER JOIN oficina o ON e.id_oficina = o.id_oficina INNER JOIN 
+   oficina_direccion od ON o.id_oficina = od.id_oficina INNER JOIN direccion d ON od.id_direccion = d.id_direccion INNER JOIN ciudad o_ciudad ON d.id_ciudad = 
+   o_ciudad.id_ciudad;
+
+	+-------------------+----------------------+------------------------+-------------------+
+	| nombre_cliente    | nombre_representante | apellido_representante | ciudad_oficina    |
+	+-------------------+----------------------+------------------------+-------------------+
+	| Carlos Pérez      | Juan                 | González               | Boston            |
+	| Laura López       | Juan                 | González               | Boston            |
+	| Ana García        | María                | Martínez               | Montreal          |
+	| Juan Hernández    | María                | Martínez               | Montreal          |
+	| Pedro Martínez    | Carlos               | Pérez                  | Ciudad de México  |
+	| Sofía Díaz        | Carlos               | Pérez                  | Ciudad de México  |
+	| María Rodríguez   | Laura                | Díaz                   | Montreal          |
+	| Miguel Torres     | Laura                | Díaz                   | Montreal          |
+	+-------------------+----------------------+------------------------+-------------------+
    ```
 
    
@@ -774,51 +866,88 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 8. Devuelve un listado con el nombre de los empleados junto con el nombre
    de sus jefes.
 
-   
-
    ```mysql
-   
+
+   SELECT e.nombre AS nombre_empleado, e.apellido1 AS apellido_empleado, 
+   j.nombre AS nombre_jefe, j.apellido1 AS apellido_jefe
+   FROM empleado AS e
+   INNER JOIN empleado AS j ON e.id_jefe = j.id_empleado;
+	+-----------------+-------------------+-------------+---------------+
+	| nombre_empleado | apellido_empleado | nombre_jefe | apellido_jefe |
+	+-----------------+-------------------+-------------+---------------+
+	| María           | Martínez          | Juan        | González      |
+	| Carlos          | Pérez             | Juan        | González      |
+	| Laura           | Díaz              | Juan        | González      |
+	| Ana             | Sánchez           | Juan        | González      |
+	+-----------------+-------------------+-------------+---------------+
+	4 rows in set (0.01 sec)
    ```
 
-   
 
 9. Devuelve un listado que muestre el nombre de cada empleados, el nombre
    de su jefe y el nombre del jefe de sus jefe.
 
-   
-
    ```mysql
    
-   ```
-
+   SELECT e.nombre AS nombre_empleado, e.apellido1 AS apellido_empleado,
+   j.nombre AS nombre_jefe, j.apellido1 AS apellido_jefe,
+   jj.nombre AS nombre_jefe_jefe, jj.apellido1 AS 
+   apellido_jefe_jefe
+   FROM empleado AS e
+   INNER JOIN empleado AS j ON e.id_jefe = j.id_empleado
+   INNER JOIN empleado AS jj ON j.id_jefe = jj.id_empleado;
    
+   Empty set (0.01 sec)
+   ```
 
 10. Devuelve el nombre de los clientes a los que no se les ha entregado a
     tiempo un pedido.
 
-    
-
     ```mysql
+
+    SELECT DISTINCT c.nombre_cliente
+    FROM cliente AS c
+    INNER JOIN pedido AS p ON c.id_cliente = p.id_cliente
+    WHERE p.fecha_entrega > p.fecha_esperada;
     
+    Empty set (0.02 sec)
     ```
 
     
 
 11. Devuelve un listado de las diferentes gamas de producto que ha comprado
     cada cliente.
-    Consultas multitabla (Composición externa)
-    Resuelva todas las consultas utilizando las cláusulas LEFT JOIN, RIGHT JOIN, NATURAL
-    LEFT JOIN y NATURAL RIGHT JOIN.
-
-    
 
     ```mysql
-    
+
+    SELECT c.nombre_cliente, GROUP_CONCAT(DISTINCT p.gama) AS 
+    gamas_compradas
+    FROM cliente AS c
+    INNER JOIN pedido AS pe ON c.id_cliente = pe.id_cliente
+    INNER JOIN detalle_pedido AS dp ON pe.id_pedido = dp.id_pedido
+    INNER JOIN producto AS p ON dp.id_producto = p.id_producto
+    GROUP BY c.nombre_cliente;
+
+        +-------------------+-----------------+
+	| nombre_cliente    | gamas_compradas |
+	+-------------------+-----------------+
+	| Ana García        | Gama Media      |
+	| Carlos Pérez      | Gama Alta       |
+	| Juan Hernández    | Gama Baja       |
+	| Laura López       | Gama Media      |
+	| María Rodríguez   | Gama Alta       |
+	| Miguel Torres     | Gama Alta       |
+	| Pedro Martínez    | Gama Baja       |
+	| Sofía Díaz        | Gama Alta       |
+	+-------------------+-----------------+
+	8 rows in set (0.03 sec)
     ```
+    
+Consultas multitabla (Composición externa)
+Resuelva todas las consultas utilizando las cláusulas LEFT JOIN, RIGHT JOIN, NATURAL LEFT JOIN y NATURAL RIGHT JOIN.
 
     
-
-12. Devuelve un listado que muestre solamente los clientes que no han
+1. Devuelve un listado que muestre solamente los clientes que no han
     realizado ningún pago.
 
     
@@ -829,7 +958,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-13. Devuelve un listado que muestre solamente los clientes que no han
+12. Devuelve un listado que muestre solamente los clientes que no han
     realizado ningún pedido.
 
     
@@ -840,7 +969,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-14. Devuelve un listado que muestre los clientes que no han realizado ningún
+13. Devuelve un listado que muestre los clientes que no han realizado ningún
     pago y los que no han realizado ningún pedido.
 
     
@@ -851,7 +980,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-15. Devuelve un listado que muestre solamente los empleados que no tienen
+14. Devuelve un listado que muestre solamente los empleados que no tienen
     una oficina asociada.
 
     
@@ -862,7 +991,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-16. Devuelve un listado que muestre solamente los empleados que no tienen un
+15. Devuelve un listado que muestre solamente los empleados que no tienen un
     cliente asociado.
 
     
@@ -873,7 +1002,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-17. Devuelve un listado que muestre solamente los empleados que no tienen un
+16. Devuelve un listado que muestre solamente los empleados que no tienen un
     cliente asociado junto con los datos de la oficina donde trabajan.
 
     
@@ -884,7 +1013,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-18. Devuelve un listado que muestre los empleados que no tienen una oficina
+17. Devuelve un listado que muestre los empleados que no tienen una oficina
     asociada y los que no tienen un cliente asociado.
 
     
@@ -895,7 +1024,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-19. Devuelve un listado de los productos que nunca han aparecido en un
+18. Devuelve un listado de los productos que nunca han aparecido en un
     pedido.
 
     
@@ -906,7 +1035,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-20. Devuelve un listado de los productos que nunca han aparecido en un
+19. Devuelve un listado de los productos que nunca han aparecido en un
     pedido. El resultado debe mostrar el nombre, la descripción y la imagen del
     producto.
 
@@ -918,7 +1047,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-21. Devuelve las oficinas donde no trabajan ninguno de los empleados que
+20. Devuelve las oficinas donde no trabajan ninguno de los empleados que
     hayan sido los representantes de ventas de algún cliente que haya realizado
     la compra de algún producto de la gama Frutales.
 
@@ -930,7 +1059,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-22. Devuelve un listado con los clientes que han realizado algún pedido pero no
+21. Devuelve un listado con los clientes que han realizado algún pedido pero no
     han realizado ningún pago.
 
     
@@ -941,7 +1070,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-23. Devuelve un listado con los datos de los empleados que no tienen clientes
+22. Devuelve un listado con los datos de los empleados que no tienen clientes
     asociados y el nombre de su jefe asociado.
     Consultas resumen
 
@@ -953,7 +1082,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-24. ¿Cuántos empleados hay en la compañía?
+23. ¿Cuántos empleados hay en la compañía?
 
     
 
@@ -963,7 +1092,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-25. ¿Cuántos clientes tiene cada país?
+24. ¿Cuántos clientes tiene cada país?
 
     
 
@@ -973,7 +1102,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-26. ¿Cuál fue el pago medio en 2009?
+25. ¿Cuál fue el pago medio en 2009?
 
     
 
@@ -983,7 +1112,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-27. ¿Cuántos pedidos hay en cada estado? Ordena el resultado de forma
+26. ¿Cuántos pedidos hay en cada estado? Ordena el resultado de forma
     descendente por el número de pedidos.
 
     
@@ -994,7 +1123,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-28. Calcula el precio de venta del producto más caro y más barato en una
+27. Calcula el precio de venta del producto más caro y más barato en una
     misma consulta.
 
     
@@ -1005,7 +1134,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-29. Calcula el número de clientes que tiene la empresa.
+28. Calcula el número de clientes que tiene la empresa.
 
     
 
@@ -1015,7 +1144,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-30. ¿Cuántos clientes existen con domicilio en la ciudad de Madrid?
+29. ¿Cuántos clientes existen con domicilio en la ciudad de Madrid?
 
     
 
@@ -1025,7 +1154,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-31. ¿Calcula cuántos clientes tiene cada una de las ciudades que empiezan
+30. ¿Calcula cuántos clientes tiene cada una de las ciudades que empiezan
     por M?
 
     
@@ -1036,7 +1165,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-32. Devuelve el nombre de los representantes de ventas y el número de clientes
+31. Devuelve el nombre de los representantes de ventas y el número de clientes
     al que atiende cada uno.
 
     
@@ -1047,7 +1176,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-33. Calcula el número de clientes que no tiene asignado representante de
+32. Calcula el número de clientes que no tiene asignado representante de
     ventas.
 
     
@@ -1058,7 +1187,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-34. Calcula la fecha del primer y último pago realizado por cada uno de los
+33. Calcula la fecha del primer y último pago realizado por cada uno de los
     clientes. El listado deberá mostrar el nombre y los apellidos de cada cliente.
 
     
@@ -1069,7 +1198,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-35. Calcula el número de productos diferentes que hay en cada uno de los
+34. Calcula el número de productos diferentes que hay en cada uno de los
     pedidos.
 
     
@@ -1080,7 +1209,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-36. Calcula la suma de la cantidad total de todos los productos que aparecen en
+35. Calcula la suma de la cantidad total de todos los productos que aparecen en
     cada uno de los pedidos.
 
     
@@ -1091,7 +1220,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-37. Devuelve un listado de los 20 productos más vendidos y el número total de
+36. Devuelve un listado de los 20 productos más vendidos y el número total de
     unidades que se han vendido de cada uno. El listado deberá estar ordenado
     por el número total de unidades vendidas.
 
@@ -1103,7 +1232,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-38. La facturación que ha tenido la empresa en toda la historia, indicando la
+37. La facturación que ha tenido la empresa en toda la historia, indicando la
     base imponible, el IVA y el total facturado. La base imponible se calcula
     sumando el coste del producto por el número de unidades vendidas de la
     tabla detalle_pedido. El IVA es el 21 % de la base imponible, y el total la
@@ -1117,7 +1246,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-39. La misma información que en la pregunta anterior, pero agrupada por
+38. La misma información que en la pregunta anterior, pero agrupada por
     código de producto.
 
     
@@ -1128,7 +1257,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-40. La misma información que en la pregunta anterior, pero agrupada por
+39. La misma información que en la pregunta anterior, pero agrupada por
     código de producto filtrada por los códigos que empiecen por OR.
 
     
@@ -1139,7 +1268,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-41. Lista las ventas totales de los productos que hayan facturado más de 3000
+40. Lista las ventas totales de los productos que hayan facturado más de 3000
     euros. Se mostrará el nombre, unidades vendidas, total facturado y total
     facturado con impuestos (21% IVA).
 
@@ -1151,7 +1280,7 @@ INSERT INTO detalle_pedido (id_producto, id_pedido, cantidad, precio_unidad, num
 
     
 
-42. Muestre la suma total de todos los pagos que se realizaron para cada uno
+41. Muestre la suma total de todos los pagos que se realizaron para cada uno
     de los años que aparecen en la tabla pagos.
 
     
