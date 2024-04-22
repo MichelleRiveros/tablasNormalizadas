@@ -222,9 +222,6 @@ CONSTRAINT FK_pago_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_client
 ```
 
 
-
-
-
 **DML**
 
 **INSERT**
@@ -266,7 +263,7 @@ VALUES
     ('São Paulo', 4),           
     ('Buenos Aires', 5),        
     ('Madrid', 6),              
-    ('París', 7); 
+    ('París', 7);
 
 
 -- Oficinas
@@ -282,7 +279,73 @@ VALUES
     ('Oficina Regional', '678-901-2345');
 
 
--- oficinas direccion
+-- direccion
+
+INSERT INTO direccion (linea_direccion1, linea_direccion2, barrio, codigo_postal, id_ciudad)
+VALUES 
+    ('123 Main Street', NULL, 'Downtown', '02101', 1),     -- Boston
+    ('456 Rue Principale', NULL, 'Centre-ville', 'H1A 1A1', 2),  -- Montreal
+    ('789 Avenida Principal', 'Colonia Centro', 'Centro', '01000', 3), -- Ciudad de México
+    ('123 Avenida Paulista', 'Apartamento 101', 'Jardins', '01234-567', 4), -- São Paulo
+    ('456 Calle Principal', NULL, 'Centro', '1000', 5),    -- Buenos Aires
+    ('789 Calle Principal', NULL, 'Centro', '28001', 6),   -- Madrid
+    ('123 Rue Principale', NULL, 'Centre-ville', '75001', 7);   -- París
+
+-- proveedores
+
+INSERT INTO proveedor (id_proveedor, telefono, nombre) VALUES
+(123456789, '1234567890', 'Juan Perez'),
+(987654321, '0987654321', 'Maria Garcia'),
+(234567890, '2345678901', 'Luis Rodriguez'),
+(345678901, '3456789012', 'Ana Martinez'),
+(456789012, '4567890123', 'Pedro Sanchez'),
+(567890123, '5678901234', 'Laura Gonzalez'),
+(678901234, '6789012345', 'Carlos Lopez');
+
+
+-- Proveedores_direccion
+
+-- Juan Perez - Boston, Estados Unidos
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (123456789, 1);
+
+-- Maria Garcia - Montreal, Canadá
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (987654321, 2);
+
+-- Luis Rodriguez - Ciudad de México, México
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (234567890, 3);
+
+-- Ana Martinez - São Paulo, Brasil
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (345678901, 4);
+
+-- Pedro Sanchez - Buenos Aires, Argentina
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (456789012, 5);
+
+-- Laura Gonzalez - Madrid, España
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (567890123, 6);
+
+-- Carlos Lopez - París, Francia
+INSERT INTO proveedor_direccion (id_proveedor, id_direccion)
+VALUES (678901234, 7);
+
+-- oficinas
+
+INSERT INTO oficina (nombre, telefono)
+VALUES 
+    ('Oficina Central', '123-456-7890'),
+    ('Sucursal Norte', '987-654-3210'),
+    ('Sucursal Sur', '234-567-8901'),
+    ('Sucursal Este', '345-678-9012'),
+    ('Sucursal Oeste', '456-789-0123'),
+    ('Oficina Principal', '567-890-1234'),
+    ('Oficina Regional', '678-901-2345');
+
+-- oficina_direccion
 
 INSERT INTO oficina_direccion (id_oficina, id_direccion)
 VALUES 
@@ -295,7 +358,7 @@ VALUES
     (7, 7); -- Oficina Regional - París, Francia
 
 
--- gamas
+-- gama_producto
 
 INSERT INTO gama_producto (gama, descripcion_texto, descripcion_html, imagen)
 VALUES 
@@ -303,51 +366,107 @@ VALUES
     ('Gama Media', 'Productos de calidad aceptable a precios accesibles.', '<p>Productos de calidad aceptable a precios accesibles.</p>', 'imagen_gama_media.jpg'),
     ('Gama Baja', 'Productos económicos para presupuestos ajustados.', '<p>Productos económicos para presupuestos ajustados.</p>', 'imagen_gama_baja.jpg');
 
+-- dimensiones
 
--- Empleados
-
--- Clientes
-
--- Proveedores
-
--- Sucursales
-
--- Tipo de Teléfono
-
--- Inserts de teléfonos para proveedores
-
--- Inserts de teléfonos para oficinas
-
--- Inserts de teléfonos para clientes
-
--- Tipos de Pago
-
--- Pagos
-
-INSERT INTO pago (id_transaccion, id_cliente, forma_pago, fecha_pago, total)
-VALUES
-    ('T001', 122334455, 'Tarjeta de crédito', '2023-05-10', 500.00),
-    ('T002', 223344566, 'Transferencia bancaria', '2023-05-12', 750.00),
-    ('T003', 334455677, 'Efectivo', '2023-05-15', 1000.00),
-    ('T004', 445567788, 'Tarjeta de débito', '2023-05-18', 800.00),
-    ('T005', 556678899, 'Cheque', '2023-05-20', 600.00);
-
--- Contactos
-
--- Estados de Pedido
-
--- Gamas de Producto
-
--- Dimensiones
-
--- Productos
-
--- Inventario
-
--- Pedidos
+INSERT INTO dimensiones (alto, ancho, profundidad, diametro, unidad_de_medida)
+VALUES 
+    (10.5, 5.3, 8, NULL, 'cm'),
+    (20, 15, 12, NULL, 'cm'),
+    (30, 25, 20, NULL, 'cm'),
+    (8, 8, 8, NULL, 'in'),
+    (12.5, 10, 5, NULL, 'in'),
+    (18, 12, 10, NULL, 'in');
 
 
--- Detalles de Pedido
+-- prodcuto
+
+INSERT INTO producto (nombre, descripcion, precio_proveedor, precio_venta, id_dimensiones, id_proveedor, gama)
+VALUES 
+    ('Laptop HP', 'Portátil de alta calidad con procesador rápido y pantalla de alta resolución.', 800.00, 1200.00, 1, 123456789, 'Gama Alta'),
+    ('Teléfono Samsung', 'Teléfono inteligente con cámara de alta resolución y pantalla táctil.', 500.00, 700.00, 2, 987654321, 'Gama Media'),
+    ('Tablet Lenovo', 'Tablet compacta con sistema operativo Android y larga duración de batería.', 250.00, 350.00, 3, 234567890, 'Gama Baja'),
+    ('TV LG', 'Televisor LED de 55 pulgadas con resolución 4K y sonido envolvente.', 1200.00, 1500.00, 4, 345678901, 'Gama Alta'),
+    ('Refrigerador Whirlpool', 'Refrigerador con dispensador de agua y congelador de gran capacidad.', 1000.00, 1300.00, 5, 456789012, 'Gama Media'),
+    ('Licuadora Oster', 'Licuadora de alto rendimiento con múltiples velocidades y jarra de vidrio.', 50.00, 80.00, 6, 567890123, 'Gama Baja');
+
+
+-- inventario
+
+INSERT INTO inventario (id_producto, cantidad_en_stock, ubicacion)
+VALUES 
+    (1, 20, 'Pasillo A, Estante 1'),
+    (2, 15, 'Pasillo B, Estante 2'),
+    (3, 30, 'Pasillo C, Estante 3'),
+    (4, 10, 'Pasillo D, Estante 4'),
+    (5, 25, 'Pasillo E, Estante 5'),
+    (6, 40, 'Pasillo F, Estante 6');
+
+-- empleados
+
+INSERT INTO empleado (id_empleado, nombre, apellido1, apellido2, extension, email, id_oficina, id_jefe, puesto)
+VALUES 
+    (1234567890, 'Juan', 'García', 'Pérez', '1234', 'juan.garcia@example.com', 1, NULL, 'Gerente'),
+    (2345678901, 'María', 'Martínez', 'López', '5678', 'maria.martinez@example.com', 2, 1234567890, 'Asistente'),
+    (3456789012, 'Pedro', 'Hernández', 'Gómez', '9012', 'pedro.hernandez@example.com', 1, 1234567890, 'Asistente'),
+    (4567890123, 'Laura', 'Díaz', 'Rodríguez', '3456', 'laura.diaz@example.com', 3, 1234567890, 'Secretaria');
+
+
+-- clientes
+
+INSERT INTO cliente (id_cliente, nombre_cliente, telefono, id_empleado_rep_ventas, limite_credito)
+VALUES 
+    (122334455, 'Carlos Pérez', '123-456-7890', 1, 5000.00),
+    (223344566, 'Ana García', '234-567-8901', 2, 7000.00),
+    (334455677, 'Pedro Martínez', '345-678-9012', 3, 10000.00),
+    (445567788, 'María Rodríguez', '456-789-0123', 4, 8000.00),
+    (556678899, 'Laura López', '567-890-1234', 1, 6000.00),
+    (667889900, 'Juan Hernández', '678-901-2345', 2, 9000.00),
+    (778990011, 'Sofía Díaz', '789-012-3456', 3, 12000.00),
+    (899001122, 'Miguel Torres', '890-123-4567', 4, 8500.00);
+
+
+-- Cliente_direccion
+
+INSERT INTO cliente_direccion (id_cliente, id_direccion)
+VALUES 
+    (122334455, 1), -- Cliente Carlos Pérez - Dirección en Boston
+    (223344566, 2), -- Cliente Ana García - Dirección en Montreal
+    (334455677, 3), -- Cliente Pedro Martínez - Dirección en Ciudad de México
+    (445567788, 4), -- Cliente María Rodríguez - Dirección en São Paulo
+    (556678899, 5), -- Cliente Laura López - Dirección en Buenos Aires
+    (667889900, 6), -- Cliente Juan Hernández - Dirección en Madrid
+    (778990011, 7), -- Cliente Sofía Díaz - Dirección en París
+    (899001122, 1); -- Cliente Miguel Torres - Dirección en Boston (misma que Carlos Pérez)
+
+
+-- contactos
+
+INSERT INTO contacto (nombre_contacto, apellido_contacto, id_cliente)
+VALUES 
+    ('Juan', 'López', 122334455), -- Contacto para el cliente Carlos Pérez
+    ('María', 'Gómez', 223344566), -- Contacto para el cliente Ana García
+    ('Pedro', 'Díaz', 334455677), -- Contacto para el cliente Pedro Martínez
+    ('Laura', 'Martínez', 445567788), -- Contacto para el cliente María Rodríguez
+    ('Sofía', 'Pérez', 556678899), -- Contacto para el cliente Laura López
+    ('Miguel', 'González', 667889900), -- Contacto para el cliente Juan Hernández
+    ('Ana', 'Sánchez', 778990011), -- Contacto para el cliente Sofía Díaz
+    ('Carlos', 'Hernández', 899001122); -- Contacto para el cliente Miguel Torres
+
+-- pedido
+
+INSERT INTO pedido (fecha_pedido, fecha_esperada, estado, id_cliente)
+VALUES 
+    ('2024-04-20', '2024-04-25', 'En Proceso', 122334455), -- Pedido para Carlos Pérez
+    ('2024-04-21', '2024-04-26', 'Entregado', 223344566), -- Pedido para Ana García
+    ('2024-04-22', '2024-04-27', 'Rechazado', 334455677), -- Pedido para Pedro Martínez
+    ('2024-04-23', '2024-04-28', 'En Proceso', 445567788), -- Pedido para María Rodríguez
+    ('2024-04-24', '2024-04-29', 'En Proceso', 556678899), -- Pedido para Laura López
+    ('2024-04-25', '2024-04-30', 'Entregado', 667889900), -- Pedido para Juan Hernández
+    ('2024-04-26', '2024-05-01', 'En Proceso', 778990011), -- Pedido para Sofía Díaz
+    ('2024-04-27', '2024-05-02', 'En Proceso', 899001122); -- Pedido para Miguel Torres
+
+
+-- detalle_pedido
 
 INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unidad, numero_linea)
 VALUES 
@@ -357,8 +476,20 @@ VALUES
     (4, 4, 2, 1200.00, 1), -- Detalle del pedido 4 (María Rodríguez) - Producto 4 (TV LG)
     (5, 5, 1, 1000.00, 1), -- Detalle del pedido 5 (Laura López) - Producto 5 (Refrigerador Whirlpool)
     (6, 6, 3, 50.00, 1),   -- Detalle del pedido 6 (Juan Hernández) - Producto 6 (Licuadora Oster)
-    (7, 1, 2, 800.00, 1), -- Detalle del pedido 7 (Sofía Díaz) - Producto 7 (TV LG)
+    (7, 7, 2, 1500.00, 1), -- Detalle del pedido 7 (Sofía Díaz) - Producto 7 (TV LG)
     (8, 1, 1, 800.00, 1);  -- Detalle del pedido 8 (Miguel Torres) - Producto 1 (Laptop HP)
+
+-- pago
+
+INSERT INTO pago (id_transaccion, id_cliente, forma_pago, fecha_pago, total)
+VALUES
+    ('T001', 122334455, 'Tarjeta de crédito', '2023-05-10', 500.00),
+    ('T002', 223344566, 'Transferencia bancaria', '2023-05-12', 750.00),
+    ('T003', 334455677, 'Efectivo', '2023-05-15', 1000.00),
+    ('T004', 445567788, 'Tarjeta de débito', '2023-05-18', 800.00),
+    ('T005', 556678899, 'Cheque', '2023-05-20', 600.00);
+
+
 ```
 
 **Consultas sobre una tabla**
