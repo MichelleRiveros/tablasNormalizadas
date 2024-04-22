@@ -492,6 +492,84 @@ VALUES
 
 ```
 
+**Explique que forma normal aplica en cada una de las tablas normalizadas.**
+
+1. **Tabla: pais**
+   - Esta tabla tiene una clave primaria (id_pais) y un atributo (nombre).
+   - Cumple con la Primera Forma Normal (1FN) ya que todos los atributos son atómicos y no hay repetición de grupos de atributos.
+
+2. **Tabla: region**
+   - Tiene una clave primaria (id_region) y atributos (nombre, id_pais).
+   - Cumple con la 1FN.
+   - Para la Segunda Forma Normal (2FN), dado que no tiene atributos dependientes de una parte de la clave primaria, no hay violaciones.
+   - Cumple con la Tercera Forma Normal (3FN) ya que no tiene dependencias transitivas.
+
+3. **Tabla: ciudad**
+   - Similar a la tabla de región, cumple con la 1FN, 2FN y 3FN.
+
+4. **Tabla: direccion**
+   - Contiene una clave primaria (id_direccion) y atributos (linea_direccion1, linea_direccion2, barrio, codigo_postal, id_ciudad).
+   - Cumple con la 1FN, 2FN y 3FN, ya que no hay dependencias transitivas y todos los atributos no clave dependen de la clave primaria completa.
+
+5. **Tabla: proveedor**
+   - Tiene una clave primaria (id_proveedor) y atributos (telefono, nombre).
+   - Cumple con la 1FN, 2FN y 3FN.
+
+6. **Tabla: proveedor_direccion**
+   - La combinación de (id_proveedor, id_direccion) es una clave primaria compuesta.
+   - Cumple con la 1FN, 2FN y 3FN.
+
+7. **Tabla: oficina**
+   - Tiene una clave primaria (id_oficina) y atributos (nombre, telefono).
+   - Cumple con la 1FN, 2FN y 3FN.
+
+8. **Tabla: oficina_direccion**
+   - Similar a proveedor_direccion, cumple con la 1FN, 2FN y 3FN.
+
+9. **Tabla: gama_producto**
+   - Solo tiene una clave primaria (gama) y atributos, cumple con la 1FN y la 2FN, pero no se aplican las reglas de la 3FN ya que hay dependencia transitiva entre gama y descripciones.
+
+10. **Tabla: dimensiones**
+    - Tiene una clave primaria (id_dimensiones) y atributos (alto, ancho, profundidad, diametro, unidad_de_medida).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+11. **Tabla: producto**
+    - Tiene una clave primaria (id_producto) y atributos (nombre, descripcion, precio_proveedor, precio_venta, id_dimensiones, id_proveedor, gama).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+12. **Tabla: inventario**
+    - Tiene una clave primaria (id_inventario) y atributos (id_producto, cantidad_en_stock, ubicacion).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+13. **Tabla: empleado**
+    - Tiene una clave primaria (id_empleado) y atributos (nombre, apellido1, apellido2, extension, email, id_oficina, id_jefe, puesto).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+14. **Tabla: cliente**
+    - Tiene una clave primaria (id_cliente) y atributos (nombre_cliente, telefono, id_empleado_rep_ventas, limite_credito).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+15. **Tabla: cliente_direccion**
+    - Similar a proveedor_direccion, cumple con la 1FN, 2FN y 3FN.
+
+16. **Tabla: contacto**
+    - Tiene una clave primaria (id_contacto) y atributos (nombre_contacto, apellido_contacto, id_cliente).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+17. **Tabla: pedido**
+    - Tiene una clave primaria (id_pedido) y atributos (fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, id_cliente).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+18. **Tabla: detalle_pedido**
+    - Tiene una clave primaria compuesta (id_pedido, id_producto) y atributos (cantidad, precio_unidad, numero_linea).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+19. **Tabla: pago**
+    - Tiene una clave primaria (id_transaccion) y atributos (id_cliente, forma_pago, fecha_pago, total).
+    - Cumple con la 1FN, 2FN y 3FN.
+
+En resumen, todas las tablas cumplen al menos con la Primera, Segunda y Tercera Forma Normal (1FN, 2FN y 3FN), excepto la tabla gama_producto, que tiene dependencias transitivas y no cumple con la 3FN.
+
 **Consultas sobre una tabla**
 
 1. Devuelve un listado con el código de oficina y la ciudad donde hay oficinas.
