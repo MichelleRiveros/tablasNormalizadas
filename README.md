@@ -95,7 +95,8 @@ CREATE TABLE gama_producto(
     PRIMARY KEY (gama),
     descripcion_texto TEXT,
     descripcion_html TEXT,
-    imagen VARCHAR(256));
+    imagen VARCHAR(256)
+);
 
 CREATE TABLE dimensiones(
     id_dimensiones INT(11) NOT NULL AUTO_INCREMENT,
@@ -104,7 +105,8 @@ CREATE TABLE dimensiones(
     ancho DECIMAL(5),
     profundidad INT(5),
     diametro DECIMAL(5),
-    unidad_de_medida VARCHAR(10));
+    unidad_de_medida VARCHAR(10)
+);
 
 CREATE TABLE producto (
     id_producto INT(11) NOT NULL AUTO_INCREMENT,
@@ -166,21 +168,11 @@ CREATE TABLE cliente_direccion (
     FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
 );
 
-CREATE TABLE cliente_direccion (
-    id_cliente INT(11) NOT NULL,
-    id_direccion INT(11) NOT NULL,
-    PRIMARY KEY (id_cliente, id_direccion),
-    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
-    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
-);
-
 CREATE TABLE contacto (
-    id_contacto INT(11) NOT NULL AUTO_INCREMENT,
+    id_contacto INT(11) NOT NULL,
     nombre_contacto VARCHAR(30) NOT NULL,
     apellido_contacto VARCHAR(30) NOT NULL,
-    id_cliente INT(11) NOT NULL,
     PRIMARY KEY (id_contacto),
-    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
 );
 
 CREATE TABLE pedido (
@@ -215,8 +207,6 @@ fecha_pago DATE NOT NULL,
 total DECIMAL(15) NOT NULL,
 CONSTRAINT FK_pago_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
 );
-
-
 ```
 
 
